@@ -1,0 +1,27 @@
+spring:
+  profiles:
+    active: local
+  application:
+    name: Projects
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        format_sql: true
+        show_sql: true
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+        root: DEBUG
+        ws: TRACE
+
