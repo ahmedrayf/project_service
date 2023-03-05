@@ -3,6 +3,7 @@ package com.project.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.entity.Project;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class ProjectCategoryDTO {
 
-    @NotNull(message = "You have to set Project category name")
+    @NotBlank(message = "You have to set Project category name")
     private String name;
     private String description;
     private Set<Project> projects;

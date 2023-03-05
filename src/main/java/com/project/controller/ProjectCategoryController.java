@@ -2,9 +2,7 @@ package com.project.controller;
 
 import com.project.dto.PagingInfo;
 import com.project.dto.ProjectCategoryDTO;
-import com.project.dto.ProjectDTO;
-import com.project.dto.response.CustomResponse;
-import com.project.entity.Project;
+import com.project.dto.response.AppResponse;
 import com.project.entity.ProjectCategory;
 import com.project.service.CategoryService;
 import jakarta.validation.constraints.Min;
@@ -16,26 +14,23 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("projectCategory")
 public class ProjectCategoryController {
 
-    @Autowired
-    private CategoryService categoryService;
-
     @GetMapping("getAll")
-    public ResponseEntity getAllProjects(@RequestParam(name = "searchTag",required = false)  String searchTag,
+    public ResponseEntity getAllProjects(@RequestParam(required = false)  String searchTag,
                                          @RequestParam int pageNum ,
                                          @RequestParam int count){
         try{
             PagingInfo pagingInfo = PagingInfo.builder()
                     .pageNum(pageNum)
                     .count(count).build();
-           Page<ProjectCategory> result =  categoryService.getAllCategories(searchTag , pagingInfo);
-            return new ResponseEntity<>((CustomResponse) CustomResponse.builder()
-                    .data(result)
+            Page<ProjectCategory> result =  categoryService.getAllCategories(searchTag , pagingInfo);
+            return new ResponseEntity<>((AppResponse) AppResponse.builder()
+                    .data(Map.of("projectCategories",result))
                     .HttpStatusCode(HttpStatus.OK)
                     .HttpMessage("SUCCESS")
                     .HttpTimestamp(LocalDateTime.now())
@@ -45,7 +40,7 @@ public class ProjectCategoryController {
         }
         catch (Exception ex){
             ex.printStackTrace();
-            return new ResponseEntity<>((CustomResponse) CustomResponse.builder()
+            return new ResponseEntity<>((AppResponse) AppResponse.builder()
                     .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
                     .HttpMessage("FAILED")
                     .HttpTimestamp(LocalDateTime.now())
@@ -56,12 +51,15 @@ public class ProjectCategoryController {
 
     }
 
+    @Autowired
+    private CategoryService categoryService;
+
     @GetMapping("{id}")
-    public ResponseEntity getProjectById(@PathVariable Long id){
+    public ResponseEntity getProjectById(@PathVariable @Min(1) Long id){
         try{
             ProjectCategory result =  categoryService.getCategoryById(id);
-            return new ResponseEntity<>((CustomResponse) CustomResponse.builder()
-                    .data(result)
+            return new ResponseEntity<>((AppResponse) AppResponse.builder()
+                    .data(Map.of("projectCategory",result))
                     .HttpStatusCode(HttpStatus.OK)
                     .HttpMessage("SUCCESS")
                     .HttpTimestamp(LocalDateTime.now())
@@ -71,7 +69,7 @@ public class ProjectCategoryController {
         }
         catch (Exception ex){
             ex.printStackTrace();
-            return new ResponseEntity<>((CustomResponse) CustomResponse.builder()
+            return new ResponseEntity<>((AppResponse) AppResponse.builder()
                     .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
                     .HttpMessage(ex.getMessage())
                     .HttpTimestamp(LocalDateTime.now())
@@ -82,11 +80,11 @@ public class ProjectCategoryController {
     }
 
     @PostMapping("save")
-    public ResponseEntity addProject(@RequestBody ProjectCategoryDTO projectCategoryDTO) {
+    public ResponseEntity addProject(@RequestBody @Validated ProjectCategoryDTO projectCategoryDTO) {
         try {
             ProjectCategory result = categoryService.addCategory(projectCategoryDTO);
-            return new ResponseEntity<>((CustomResponse) CustomResponse.builder()
-                    .data(result)
+            return new ResponseEntity<>((AppResponse) AppResponse.builder()
+                    .data(Map.of("projectCategory",result))
                     .HttpStatusCode(HttpStatus.OK)
                     .HttpMessage("SUCCESS")
                     .HttpTimestamp(LocalDateTime.now())
@@ -95,7 +93,7 @@ public class ProjectCategoryController {
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((CustomResponse) CustomResponse.builder()
+            return new ResponseEntity<>((AppResponse) AppResponse.builder()
                     .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
                     .HttpMessage(ex.getMessage())
                     .HttpTimestamp(LocalDateTime.now())
@@ -109,8 +107,8 @@ public class ProjectCategoryController {
     public ResponseEntity editProject(@PathVariable Long id ,@RequestBody @Validated ProjectCategoryDTO projectCategoryDTO){
         try {
             ProjectCategory result =  categoryService.editCategory(id , projectCategoryDTO);
-            return new ResponseEntity<>((CustomResponse) CustomResponse.builder()
-                    .data(result)
+            return new ResponseEntity<>((AppResponse) AppResponse.builder()
+                    .data(Map.of("projectCategory",result))
                     .HttpStatusCode(HttpStatus.OK)
                     .HttpMessage("SUCCESS")
                     .HttpTimestamp(LocalDateTime.now())
@@ -119,7 +117,7 @@ public class ProjectCategoryController {
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((CustomResponse) CustomResponse.builder()
+            return new ResponseEntity<>((AppResponse) AppResponse.builder()
                     .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
                     .HttpMessage(ex.getMessage())
                     .HttpTimestamp(LocalDateTime.now())
@@ -135,8 +133,8 @@ public class ProjectCategoryController {
     public ResponseEntity deleteProjectCategory(@PathVariable @Min(1) Long id) {
 
         try {
-            categoryService.deleteProjectCategory(id );
-            return new ResponseEntity<>((CustomResponse) CustomResponse.builder()
+            categoryService.deleteProjectCategory(id);
+            return new ResponseEntity<>((AppResponse) AppResponse.builder()
                     .HttpStatusCode(HttpStatus.OK)
                     .HttpMessage("SUCCESS")
                     .HttpTimestamp(LocalDateTime.now())
@@ -145,7 +143,7 @@ public class ProjectCategoryController {
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((CustomResponse) CustomResponse.builder()
+            return new ResponseEntity<>((AppResponse) AppResponse.builder()
                     .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
                     .HttpMessage(ex.getMessage())
                     .HttpTimestamp(LocalDateTime.now())

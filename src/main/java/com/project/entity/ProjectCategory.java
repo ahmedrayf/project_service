@@ -9,6 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -30,7 +33,13 @@ public class ProjectCategory {
     @Column(name = "AddedDate")
     private LocalDateTime addedDate;
 
-    @OneToMany
-    private Set<Project> projects;
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "project_category_id")
+    private List<Project> projects;
 
+    public void add(Project project){
+        if (projects == null)
+            projects = new ArrayList<>();
+        projects.add(project);
+    }
 }

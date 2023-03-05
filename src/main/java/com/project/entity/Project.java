@@ -6,7 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -27,12 +29,9 @@ public class Project {
     private LocalDateTime startDate;
     @Column(name = "end_date")
     private LocalDateTime endDate;
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "project_category_id")
-    private ProjectCategory projectCategory;
-//    @Column(name = "project_manager_id")
-//    private Long projectManagerId;
+
+    @Column(name = "project_manager_id")
+    private Long projectManagerId;
     @Column(name = "description")
     private String description;
     @Column(name = "added_date")
@@ -41,6 +40,14 @@ public class Project {
     @Column(name = "project_status")
     @NotNull(message = "You have to set Project Status")
     private int projectStatus;
+
+    @Column(name = "project_category_id")
+    private Long projectCategoryId;
+
+    @OneToMany
+    @JoinColumn(name = "project_id")
+    @JsonIgnore
+    private List<ProjectMember> projectMembers;
 
 
 }

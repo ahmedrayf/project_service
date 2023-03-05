@@ -11,11 +11,6 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
 public class BaseResponse {
-
-    private HttpStatus HttpStatusCode;
-    private String HttpMessage;
-    private LocalDateTime HttpTimestamp;
-    private String HttpException;
-    private Object InputErrors;
+    
 
 }

@@ -1,6 +1,6 @@
 package com.project.exception;
 
-import com.project.dto.response.BaseResponse;
+import com.project.dto.response.AppResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -33,7 +33,7 @@ public class RequestsValidationsExceptionHandlers extends ResponseEntityExceptio
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        return new ResponseEntity<>(BaseResponse.builder()
+        return new ResponseEntity<>(AppResponse.builder()
                 .HttpStatusCode(HttpStatus.BAD_REQUEST)
                 .InputErrors(errors)
                 .HttpMessage("Invalid inputs")
@@ -48,7 +48,7 @@ public class RequestsValidationsExceptionHandlers extends ResponseEntityExceptio
         log.info("ConstraintViolationException: " + ex.getMessage());
         List<String> errors = new ArrayList<>();
         ex.getConstraintViolations().forEach(cv -> errors.add(cv.getMessage()));
-        return new ResponseEntity<>(BaseResponse.builder()
+        return new ResponseEntity<>(AppResponse.builder()
                 .HttpStatusCode(HttpStatus.BAD_REQUEST)
                 .InputErrors(errors)
                 .HttpMessage("Invalid inputs")
@@ -61,7 +61,7 @@ public class RequestsValidationsExceptionHandlers extends ResponseEntityExceptio
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<?> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         log.info("MethodArgumentTypeMismatchException: " + ex.getMessage());
-        return new ResponseEntity<>(BaseResponse.builder()
+        return new ResponseEntity<>(AppResponse.builder()
                 .HttpStatusCode(HttpStatus.BAD_REQUEST)
                 .InputErrors(ex.getMessage())
                 .HttpMessage("Invalid inputs")

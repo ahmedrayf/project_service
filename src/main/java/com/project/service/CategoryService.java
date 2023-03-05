@@ -4,6 +4,7 @@ import com.project.dto.PagingInfo;
 import com.project.dto.ProjectCategoryDTO;
 import com.project.entity.Project;
 import com.project.entity.ProjectCategory;
+import com.project.exception.NotFoundException;
 import com.project.repo.CategoryRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class CategoryService {
 
         Optional<ProjectCategory> categoryOptional =  categoryRepo.findById(id);
         if (!categoryOptional.isPresent())
-            throw new RuntimeException();
+            throw new NotFoundException("No such category for id: " + id);
         return categoryOptional.get();
     }
 
@@ -47,7 +48,6 @@ public class CategoryService {
         ProjectCategory projectCategory = ProjectCategory.builder()
                 .Name(projectCategoryDTO.getName())
                 .description(projectCategoryDTO.getDescription())
-                .projects(projectCategoryDTO.getProjects())
                 .addedDate(LocalDateTime.now())
                 .build();
 
@@ -58,13 +58,13 @@ public class CategoryService {
 
         Optional<ProjectCategory> optionalProjectCategory = categoryRepo.findById(id);
         if (!optionalProjectCategory.isPresent())
-            throw new RuntimeException();
+            throw new NotFoundException("No such category for id: " + id);
+
 
         ProjectCategory projectCategory = ProjectCategory.builder()
                 .id(id)
                 .Name(projectCategoryDTO.getName())
                 .description(projectCategoryDTO.getDescription())
-                .projects(projectCategoryDTO.getProjects())
                 .addedDate(LocalDateTime.now())
                 .build();
 
@@ -73,6 +73,10 @@ public class CategoryService {
 
 
     public void deleteProjectCategory(Long id) {
+
+        Optional<ProjectCategory> optionalProjectCategory = categoryRepo.findById(id);
+        if (!optionalProjectCategory.isPresent())
+            throw new NotFoundException("No such category for id: " + id);
 
         categoryRepo.deleteById(id);
 

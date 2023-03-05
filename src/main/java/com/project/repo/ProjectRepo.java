@@ -12,7 +12,7 @@ import java.util.List;
 public interface ProjectRepo extends JpaRepository<Project, Long> {
 //    List<Project> findAllProjects(Pageable pageable);
 
-    Page<Project> findByProjectCategoryId( Long id, Pageable pageable);
+//    Page<Project> findByProjectCategoryId( Long id, Pageable pageable);
 
     Page<Project> findByNameContaining(String name, Pageable pageable);
 }
