@@ -3,6 +3,7 @@ package com.project.controller;
 import com.project.dto.PagingInfo;
 import com.project.dto.ProjectCategoryDTO;
 import com.project.dto.response.AppResponse;
+import com.project.dto.response.PageableResponse;
 import com.project.entity.ProjectCategory;
 import com.project.service.CategoryService;
 import jakarta.validation.constraints.Min;
@@ -20,30 +21,36 @@ import java.util.Map;
 @RequestMapping("projectCategory")
 public class ProjectCategoryController {
 
+    @Autowired
+    private CategoryService categoryService;
+
     @GetMapping("getAll")
-    public ResponseEntity getAllProjects(@RequestParam(required = false)  String searchTag,
-                                         @RequestParam int pageNum ,
-                                         @RequestParam int count){
-        try{
+    public ResponseEntity<PageableResponse> getAllProjectsCategories(@RequestParam(required = false) String searchTag,
+                                                           @RequestParam int pageNum,
+                                                           @RequestParam int count) {
+        try {
             PagingInfo pagingInfo = PagingInfo.builder()
                     .pageNum(pageNum)
                     .count(count).build();
-            Page<ProjectCategory> result =  categoryService.getAllCategories(searchTag , pagingInfo);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .data(Map.of("projectCategories",result))
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            Page<ProjectCategory> result = categoryService.getAllCategories(searchTag, pagingInfo);
+            return new ResponseEntity<>(PageableResponse.builder()
+                    .body(result.getContent())
+                    .httpStatus(HttpStatus.OK)
+                    .totalItems(result.getTotalElements())
+                    .currentItems(result.getNumberOfElements())
+                    .currentPage(result.getPageable().getPageNumber() + 1)
+                    .totalPages(result.getTotalPages())
+                    .message("SUCCESS")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage("FAILED")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(PageableResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message("FAILED")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -51,28 +58,24 @@ public class ProjectCategoryController {
 
     }
 
-    @Autowired
-    private CategoryService categoryService;
-
     @GetMapping("{id}")
-    public ResponseEntity getProjectById(@PathVariable @Min(1) Long id){
-        try{
-            ProjectCategory result =  categoryService.getCategoryById(id);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .data(Map.of("projectCategory",result))
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+    public ResponseEntity<AppResponse> getProjectCategoryById(@PathVariable @Min(1) Long id) {
+        try {
+            ProjectCategory result = categoryService.getCategoryById(id);
+            return new ResponseEntity<>(AppResponse.builder()
+                    .body(result)
+                    .httpStatus(HttpStatus.OK)
+                    .message("SUCCESS")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -80,23 +83,23 @@ public class ProjectCategoryController {
     }
 
     @PostMapping("save")
-    public ResponseEntity addProject(@RequestBody @Validated ProjectCategoryDTO projectCategoryDTO) {
+    public ResponseEntity<AppResponse> addProjectCategory(@RequestBody @Validated ProjectCategoryDTO projectCategoryDTO) {
         try {
             ProjectCategory result = categoryService.addCategory(projectCategoryDTO);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .data(Map.of("projectCategory",result))
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .body(result)
+                    .httpStatus(HttpStatus.OK)
+                    .message("Created Successfully")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.CREATED
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -104,23 +107,23 @@ public class ProjectCategoryController {
     }
 
     @PutMapping("update/{id}")
-    public ResponseEntity editProject(@PathVariable Long id ,@RequestBody @Validated ProjectCategoryDTO projectCategoryDTO){
+    public ResponseEntity<AppResponse> editProjectCategory(@PathVariable Long id, @RequestBody @Validated ProjectCategoryDTO projectCategoryDTO) {
         try {
-            ProjectCategory result =  categoryService.editCategory(id , projectCategoryDTO);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .data(Map.of("projectCategory",result))
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            ProjectCategory result = categoryService.editCategory(id, projectCategoryDTO);
+            return new ResponseEntity<>(AppResponse.builder()
+                    .body(result)
+                    .httpStatus(HttpStatus.OK)
+                    .message("Updated Successfully")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -130,29 +133,28 @@ public class ProjectCategoryController {
 
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity deleteProjectCategory(@PathVariable @Min(1) Long id) {
+    public ResponseEntity<AppResponse> deleteProjectCategory(@PathVariable @Min(1) Long id) {
 
         try {
             categoryService.deleteProjectCategory(id);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.OK)
+                    .message("Deleted Successfully")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
     }
-
 
 
 }

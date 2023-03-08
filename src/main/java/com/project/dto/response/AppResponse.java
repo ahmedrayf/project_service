@@ -12,13 +12,13 @@ import java.util.Map;
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
-public class AppResponse {
+public class AppResponse<T> {
 
-    private HttpStatus HttpStatusCode;
-    private String HttpMessage;
-    private LocalDateTime HttpTimestamp;
-    private String HttpException;
-    private Object InputErrors;
-    private Map<?,?> data;
+    private HttpStatus httpStatus;
+    private String message;
+    private LocalDateTime timestamp;
+    private String exception;
+    private Object validationErrors;
+    private T  body;
 
 }

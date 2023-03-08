@@ -27,7 +27,7 @@ public class ProjectController {
     private ProjectService projectService;
 
     @GetMapping("getAll")
-    public ResponseEntity getAllProjects(@RequestParam(name = "searchTag", required = false) String searchTag,
+    public ResponseEntity<PageableResponse> getAllProjects(@RequestParam(name = "searchTag", required = false) String searchTag,
                                          @RequestParam int pageNum,
                                          @RequestParam int count) {
 
@@ -38,20 +38,24 @@ public class ProjectController {
                     .count(count).build();
 
             Page<Project> result = projectService.getAllProjects(searchTag, pagingInfo);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .data(Map.of("projects", result))
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(PageableResponse.builder()
+                    .body(result.getContent())
+                    .httpStatus(HttpStatus.OK)
+                    .totalItems(result.getTotalElements())
+                    .currentItems(result.getNumberOfElements())
+                    .currentPage(result.getPageable().getPageNumber() +1)
+                    .totalPages(result.getTotalPages())
+                    .message("SUCCESS")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage("FAILED")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(PageableResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message("FAILED")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -60,23 +64,23 @@ public class ProjectController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity getProjectById(@PathVariable @Min(1) Long id) {
+    public ResponseEntity<AppResponse> getProjectById(@PathVariable @Min(1) Long id) {
         try {
             Project result = projectService.getProjectById(id);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .data(Map.of("project", result))
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .body(result)
+                    .httpStatus(HttpStatus.OK)
+                    .message("SUCCESS")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -84,23 +88,23 @@ public class ProjectController {
     }
 
     @PostMapping("save")
-    public ResponseEntity addProject(@RequestBody @Validated ProjectDTO projectDTO) {
+    public ResponseEntity<AppResponse> addProject(@RequestBody @Validated ProjectDTO projectDTO) {
         try {
             Project result = projectService.addProject(projectDTO);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .data(Map.of("project", result))
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .body(result)
+                    .httpStatus(HttpStatus.OK)
+                    .message("Created Successfully")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.CREATED
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -109,23 +113,23 @@ public class ProjectController {
 
 
     @PutMapping("update/{id}")
-    public ResponseEntity editProject(@PathVariable Long id, @RequestBody @Validated ProjectDTO projectDTO) {
+    public ResponseEntity<AppResponse> editProject(@PathVariable Long id, @RequestBody @Validated ProjectDTO projectDTO) {
         try {
             Project result = projectService.editProject(id, projectDTO);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .data(Map.of("project", result))
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .body(result)
+                    .httpStatus(HttpStatus.OK)
+                    .message("Updated Successfully")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
         } catch (Exception ex) {
             ex.printStackTrace();
             return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -138,19 +142,19 @@ public class ProjectController {
 
         try {
             projectService.deleteProject(id);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.OK)
+                    .message("Deleted")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -162,19 +166,19 @@ public class ProjectController {
 
         try {
             projectService.assignProject(projectUser);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.OK)
+                    .message("Assigned Successfully")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
         } catch (Exception ex) {
             ex.printStackTrace();
             return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -182,24 +186,24 @@ public class ProjectController {
 
     }
 
-    @PostMapping("/unAssign")
+    @PutMapping("/unAssign")
     public ResponseEntity unAssignProject(@RequestBody @Validated ProjectUsersDTO projectUser) {
 
         try {
             projectService.unAssignProject(projectUser);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.OK)
+                    .message("Unassigned Successfully")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -217,22 +221,35 @@ public class ProjectController {
                     .build()
                     , HttpStatus.NOT_ACCEPTABLE
             );
+        }
+
+
+
+    }
+
+    @PostMapping("approveOptIn/{userName}/{projectId}")
+    public ResponseEntity<AppResponse> approveOptInReq(@PathVariable String userName , @PathVariable Long projectId) {
+
+        ProjectUsersDTO projectUser = ProjectUsersDTO.builder()
+                .projectId(projectId)
+                .userNames(List.of(userName))
+                .build();
 
         try {
             projectService.assignProject(projectUser);
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.OK)
+                    .message("SUCCESS")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
         } catch (Exception ex) {
             ex.printStackTrace();
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );
@@ -240,32 +257,28 @@ public class ProjectController {
 
     }
 
-    @PostMapping("/approveOptOut/{statusId}")
-    public ResponseEntity approveOptOutReq(@PathVariable int statusId, @RequestBody ProjectUsersDTO projectUser) {
-        if (statusId != 2)
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.NOT_ACCEPTABLE)
-                    .HttpMessage("Project opt Out not approved")
-                    .HttpTimestamp(LocalDateTime.now())
-                    .build()
-                    , HttpStatus.NOT_ACCEPTABLE
-            );
+    @PostMapping("/approveOptOut/{userName}/{projectId}")
+    public ResponseEntity approveOptOutReq(@PathVariable String userName , @PathVariable Long projectId) {
 
+        ProjectUsersDTO projectUser = ProjectUsersDTO.builder()
+                .projectId(projectId)
+                .userNames(List.of(userName))
+                .build();
         try {
             projectService.unAssignProject(projectUser);
             return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.OK)
-                    .HttpMessage("SUCCESS")
-                    .HttpTimestamp(LocalDateTime.now())
+                    .httpStatus(HttpStatus.OK)
+                    .message("SUCCESS")
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.OK
             );
         } catch (Exception ex) {
             ex.printStackTrace();
             return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .HttpMessage(ex.getMessage())
-                    .HttpTimestamp(LocalDateTime.now())
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
                     .build()
                     , HttpStatus.INTERNAL_SERVER_ERROR
             );

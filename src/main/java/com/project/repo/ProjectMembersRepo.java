@@ -9,6 +9,6 @@ import java.util.Optional;
 @Repository
 public interface ProjectMembersRepo extends JpaRepository<ProjectMember , Long> {
 
-    Optional<ProjectMember> findByUserIdAndProjectId(Long userId , Long projectId);
+    Optional<ProjectMember> findByUserNameAndProjectId(String userName , Long projectId);
 
 }

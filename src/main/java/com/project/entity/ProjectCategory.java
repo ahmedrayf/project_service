@@ -7,18 +7,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Data
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE ProjectCategory SET deleted = '1' WHERE id=?")
+@Where(clause = "deleted=false")
 public class ProjectCategory {
 
     @Id
@@ -37,9 +38,8 @@ public class ProjectCategory {
     @JoinColumn(name = "project_category_id")
     private List<Project> projects;
 
-    public void add(Project project){
-        if (projects == null)
-            projects = new ArrayList<>();
-        projects.add(project);
-    }
+    @JsonIgnore
+    @Column(name = "deleted")
+    private boolean deleted = Boolean.FALSE;
+
 }

@@ -21,6 +21,5 @@ public class ProjectCategoryDTO {
     @NotBlank(message = "You have to set Project category name")
     private String name;
     private String description;
-    private Set<Project> projects;
 
 }

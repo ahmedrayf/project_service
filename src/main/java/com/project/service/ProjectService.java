@@ -4,8 +4,8 @@ import com.project.dto.PagingInfo;
 import com.project.dto.ProjectDTO;
 import com.project.dto.ProjectUsersDTO;
 import com.project.entity.Project;
-import com.project.entity.ProjectCategory;
 import com.project.entity.ProjectMember;
+import com.project.enums.ProjectStatus;
 import com.project.exception.NotFoundException;
 import com.project.repo.ProjectMembersRepo;
 import com.project.repo.ProjectRepo;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -59,22 +58,13 @@ public class ProjectService {
                 .endDate(projectDTO.getEndDate())
                 .projectCategoryId(projectDTO.getProjectCategoryId())
                 .addedDate(LocalDateTime.now())
+                .projectManagerId(projectDTO.getProjectManagerId())
                 .description(projectDTO.getDescription())
                 .projectStatus(projectDTO.getProjectStatus())
                 .build();
 
         projectRepo.save(project);
         return project;
-    }
-
-    private List<ProjectMember> findProjectMembers(List<Long> projectMembersIds) {
-        Iterable projectMembers;
-        try {
-            projectMembers = projectMembersRepo.findAllById(projectMembersIds);
-        } catch (Exception e) {
-            throw new NotFoundException(e.getMessage());
-        }
-        return (List<ProjectMember>) projectMembers;
     }
 
     public Project editProject(Long id, ProjectDTO projectDTO) {
@@ -93,6 +83,7 @@ public class ProjectService {
                 .endDate(projectDTO.getEndDate())
                 .projectCategoryId(projectDTO.getProjectCategoryId())
                 .addedDate(LocalDateTime.now())
+                .projectManagerId(projectDTO.getProjectManagerId())
                 .description(projectDTO.getDescription())
                 .projectStatus(projectDTO.getProjectStatus())
                 .build();
@@ -106,6 +97,10 @@ public class ProjectService {
         Optional<Project> optionalProject = projectRepo.findById(id);
         if (!optionalProject.isPresent())
             throw new NotFoundException("No such project for id: " + id);
+
+        if (optionalProject.get().getProjectStatus() != ProjectStatus.DELIVERED.getValue())
+            throw new RuntimeException("You can delete project in case only deleted");
+
         projectRepo.deleteById(id);
     }
 
@@ -113,10 +108,10 @@ public class ProjectService {
         ProjectUsersDTO projectUser  = getUnAssignedUsers(projectUsersDTO);
         List<ProjectMember> projectMembers = new ArrayList<>();
 
-        for (Long userId : projectUser.getUserIds()) {
+        for (String userName : projectUser.getUserNames()) {
             ProjectMember projectMember = ProjectMember.builder()
                     .projectId(projectUser.getProjectId())
-                    .userId(userId)
+                    .userName(userName)
                     .addedDate(LocalDateTime.now())
                     .build();
             projectMembers.add(projectMember);
@@ -129,8 +124,8 @@ public class ProjectService {
         List<ProjectMember> projectMembers = new ArrayList<>();
 
         try {
-            for (Long userId : projectUser.getUserIds()) {
-                Optional<ProjectMember> projectMember = projectMembersRepo.findByUserIdAndProjectId(userId, projectUser.getProjectId());
+            for (String userName : projectUser.getUserNames()) {
+                Optional<ProjectMember> projectMember = projectMembersRepo.findByUserNameAndProjectId(userName, projectUser.getProjectId());
                 projectMembers.add(projectMember.get());
             }
             projectMembersRepo.deleteAll(projectMembers);
@@ -143,10 +138,10 @@ public class ProjectService {
     //Remove assigned users to the project
     private ProjectUsersDTO getUnAssignedUsers(ProjectUsersDTO projectUsers) {
 
-       List<Long> projectUsersIds = projectUsers.getUserIds();
+       List<String> projectUserNames = projectUsers.getUserNames();
        List<ProjectMember> projectMembers = new ArrayList<>();
-        for (Long userId : projectUsersIds) {
-            Optional<ProjectMember> projectMember = projectMembersRepo.findByUserIdAndProjectId(userId, projectUsers.getProjectId());
+        for (String userName : projectUserNames) {
+            Optional<ProjectMember> projectMember = projectMembersRepo.findByUserNameAndProjectId(userName, projectUsers.getProjectId());
             if (projectMember.isPresent())
                 projectMembers.add(projectMember.get());
         }
@@ -159,7 +154,17 @@ public class ProjectService {
 //                projectUsersIds.remove();
 //
 //        }
-        projectUsers.setUserIds( projectUsersIds);
+        projectUsers.setUserNames(projectUserNames);
         return projectUsers;
+    }
+
+    private List<ProjectMember> findProjectMembers(List<Long> projectMembersIds) {
+        Iterable projectMembers;
+        try {
+            projectMembers = projectMembersRepo.findAllById(projectMembersIds);
+        } catch (Exception e) {
+            throw new NotFoundException(e.getMessage());
+        }
+        return (List<ProjectMember>) projectMembers;
     }
 }

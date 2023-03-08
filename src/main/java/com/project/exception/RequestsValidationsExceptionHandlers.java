@@ -34,10 +34,10 @@ public class RequestsValidationsExceptionHandlers extends ResponseEntityExceptio
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(AppResponse.builder()
-                .HttpStatusCode(HttpStatus.BAD_REQUEST)
-                .InputErrors(errors)
-                .HttpMessage("Invalid inputs")
-                .HttpTimestamp(LocalDateTime.now())
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .validationErrors(errors)
+                .message("Invalid inputs")
+                .timestamp(LocalDateTime.now())
                 .build()
                 , HttpStatus.BAD_REQUEST
         );
@@ -49,10 +49,10 @@ public class RequestsValidationsExceptionHandlers extends ResponseEntityExceptio
         List<String> errors = new ArrayList<>();
         ex.getConstraintViolations().forEach(cv -> errors.add(cv.getMessage()));
         return new ResponseEntity<>(AppResponse.builder()
-                .HttpStatusCode(HttpStatus.BAD_REQUEST)
-                .InputErrors(errors)
-                .HttpMessage("Invalid inputs")
-                .HttpTimestamp(LocalDateTime.now())
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .validationErrors(errors)
+                .message("Invalid inputs")
+                .timestamp(LocalDateTime.now())
                 .build()
                 , HttpStatus.BAD_REQUEST
         );
@@ -62,10 +62,10 @@ public class RequestsValidationsExceptionHandlers extends ResponseEntityExceptio
     public ResponseEntity<?> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
         log.info("MethodArgumentTypeMismatchException: " + ex.getMessage());
         return new ResponseEntity<>(AppResponse.builder()
-                .HttpStatusCode(HttpStatus.BAD_REQUEST)
-                .InputErrors(ex.getMessage())
-                .HttpMessage("Invalid inputs")
-                .HttpTimestamp(LocalDateTime.now())
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .validationErrors(ex.getMessage())
+                .message("Invalid inputs")
+                .timestamp(LocalDateTime.now())
                 .build()
                 , HttpStatus.BAD_REQUEST
         );

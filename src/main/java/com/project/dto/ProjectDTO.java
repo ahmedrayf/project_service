@@ -1,10 +1,12 @@
 package com.project.dto;
 
 import com.project.entity.ProjectMember;
+import com.project.enums.ProjectStatus;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,11 +24,12 @@ public class ProjectDTO {
     private LocalDateTime endDate;
     @NotNull
     private Long projectCategoryId;
-//    private Long projectManagerId;
-        private String description;
+    @Min(1)
+    private Long projectManagerId;
+    private String description;
     @NotNull(message = "You have to set Project Status")
-    @Min(value = 1,message = "Insert a correct value for project status")
-    @Max(value = 3,message = "Insert a correct value for project status")
+    @Min(value = 2 , message =   "you can create project in status_kick off or in_progress only")
+    @Max(value = 3 ,  message = "you can create project in status_kick off or in_progress only")
     private int projectStatus;
 
 }

@@ -3,7 +3,10 @@ package com.project.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,6 +18,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@SQLDelete(sql = "UPDATE Project SET deleted='1' WHERE id=?")
+@Where(clause = "deleted=false")
 public class Project {
 
     @Id
@@ -38,12 +43,14 @@ public class Project {
     private LocalDateTime addedDate;
 
     @Column(name = "project_status")
-    @NotNull(message = "You have to set Project Status")
     private int projectStatus;
 
     @Column(name = "project_category_id")
     private Long projectCategoryId;
 
+    @JsonIgnore
+    @Column(name = "deleted")
+    private boolean deleted = Boolean.FALSE;
     @OneToMany
     @JoinColumn(name = "project_id")
     @JsonIgnore

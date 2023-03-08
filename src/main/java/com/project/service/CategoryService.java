@@ -78,6 +78,7 @@ public class CategoryService {
         if (!optionalProjectCategory.isPresent())
             throw new NotFoundException("No such category for id: " + id);
 
+
         categoryRepo.deleteById(id);
 
     }

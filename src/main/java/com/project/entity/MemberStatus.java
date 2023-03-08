@@ -1,34 +1,31 @@
 package com.project.entity;
 
+import com.project.enums.OptInStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class ProjectMember {
+public class MemberStatus {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "user_Name")
-    @NotNull(message = "You have to set username")
+
+    @Column(name = "user_name")
+    @NotNull
     private String userName;
+
     @Column(name = "project_id")
-    @NotNull(message = "You have to set project_id")
+    @NotNull
     private Long projectId;
-    @Column(name = "added_date")
-    private LocalDateTime addedDate;
-    @Column(name = "added_by")
-    private String addedBy;
 
-
-
+    @NotNull
+    @Column(name = "opt_in_request")
+    private int optInRequest = OptInStatus.PENDING.getValue();
 }
