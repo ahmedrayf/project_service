@@ -51,7 +51,9 @@ public class CategoryService {
                 .addedDate(LocalDateTime.now())
                 .build();
 
-       return categoryRepo.save(projectCategory);
+        categoryRepo.save(projectCategory);
+        log.info("Project category saved" + " id:" + projectCategory.getId());
+       return projectCategory;
     }
 
     public ProjectCategory editCategory(Long id , ProjectCategoryDTO projectCategoryDTO) {
@@ -61,14 +63,15 @@ public class CategoryService {
             throw new NotFoundException("No such category for id: " + id);
 
 
-        ProjectCategory projectCategory = ProjectCategory.builder()
+        ProjectCategory updatedProjectCategory = optionalProjectCategory.get().builder()
                 .id(id)
                 .Name(projectCategoryDTO.getName())
                 .description(projectCategoryDTO.getDescription())
                 .addedDate(LocalDateTime.now())
                 .build();
-
-        return categoryRepo.save(projectCategory);
+        categoryRepo.save(updatedProjectCategory);
+        log.info("Project category updated" + " id:" + id);
+        return updatedProjectCategory;
     }
 
 

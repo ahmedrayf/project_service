@@ -7,8 +7,10 @@ import com.project.dto.ProjectUsersDTO;
 import com.project.dto.response.AppResponse;
 import com.project.dto.response.PageableResponse;
 import com.project.entity.Project;
+import com.project.enums.OptInStatus;
 import com.project.service.ProjectService;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -212,15 +214,27 @@ public class ProjectController {
 
     }
 
-    @PostMapping("/approveOptIn/{statusId}")
-    public ResponseEntity approveOptInReq(@PathVariable int statusId, @RequestBody ProjectUsersDTO projectUser) {
-        if (statusId != 1)
-            return new ResponseEntity<>((AppResponse) AppResponse.builder()
-                    .HttpStatusCode(HttpStatus.NOT_ACCEPTABLE)
-                    .HttpMessage("Project opt in not approved")
-                    .HttpTimestamp(LocalDateTime.now())
+    @PostMapping("optIn/{userName}/{projectId}")
+    public ResponseEntity<AppResponse> optInReq(@PathVariable @NotBlank String userName ,@Min(1) @PathVariable Long projectId){
+
+        try {
+            projectService.optInReq(userName , projectId);
+            return new ResponseEntity<>(AppResponse.builder()
+                    .body(OptInStatus.PENDING.getValue())
+                    .httpStatus(HttpStatus.OK)
+                    .message("SUCCESS")
+                    .timestamp(LocalDateTime.now())
                     .build()
-                    , HttpStatus.NOT_ACCEPTABLE
+                    , HttpStatus.OK
+            );
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>(AppResponse.builder()
+                    .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message(ex.getMessage())
+                    .timestamp(LocalDateTime.now())
+                    .build()
+                    , HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
 
@@ -229,16 +243,12 @@ public class ProjectController {
     }
 
     @PostMapping("approveOptIn/{userName}/{projectId}")
-    public ResponseEntity<AppResponse> approveOptInReq(@PathVariable String userName , @PathVariable Long projectId) {
-
-        ProjectUsersDTO projectUser = ProjectUsersDTO.builder()
-                .projectId(projectId)
-                .userNames(List.of(userName))
-                .build();
+    public ResponseEntity<AppResponse> approveOptInReq(@PathVariable @NotBlank String userName , @PathVariable @Min(1) Long projectId) {
 
         try {
-            projectService.assignProject(projectUser);
+            projectService.approveOptInReq(userName,projectId);
             return new ResponseEntity<>(AppResponse.builder()
+                    .body(OptInStatus.ACCEPTED.getValue())
                     .httpStatus(HttpStatus.OK)
                     .message("SUCCESS")
                     .timestamp(LocalDateTime.now())

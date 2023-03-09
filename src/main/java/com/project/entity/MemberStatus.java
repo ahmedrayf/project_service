@@ -4,6 +4,7 @@ import com.project.enums.OptInStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Table(name = "member_status")
 public class MemberStatus {
 
     @Id
@@ -27,5 +30,5 @@ public class MemberStatus {
 
     @NotNull
     @Column(name = "opt_in_request")
-    private int optInRequest = OptInStatus.PENDING.getValue();
+    private int optInRequest;
 }

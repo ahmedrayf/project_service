@@ -3,10 +3,13 @@ package com.project.service;
 import com.project.dto.PagingInfo;
 import com.project.dto.ProjectDTO;
 import com.project.dto.ProjectUsersDTO;
+import com.project.entity.MemberStatus;
 import com.project.entity.Project;
 import com.project.entity.ProjectMember;
+import com.project.enums.OptInStatus;
 import com.project.enums.ProjectStatus;
 import com.project.exception.NotFoundException;
+import com.project.repo.MemberStatusRepo;
 import com.project.repo.ProjectMembersRepo;
 import com.project.repo.ProjectRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +31,8 @@ public class ProjectService {
     private CategoryService categoryService;
     @Autowired
     private ProjectMembersRepo projectMembersRepo;
+    @Autowired
+    private MemberStatusRepo memberStatusRepo;
 
     public Project getProjectById(Long id) {
         Optional<Project> optionalProject = projectRepo.findById(id);
@@ -64,6 +69,7 @@ public class ProjectService {
                 .build();
 
         projectRepo.save(project);
+        log.info("Project  saved" + " id:" + project.getId());
         return project;
     }
 
@@ -105,7 +111,11 @@ public class ProjectService {
     }
 
     public void assignProject(ProjectUsersDTO projectUsersDTO) {
-        ProjectUsersDTO projectUser  = getUnAssignedUsers(projectUsersDTO);
+
+        if (!isProjectExist(projectUsersDTO.getProjectId()))
+            throw new NotFoundException("No such Project");
+
+        ProjectUsersDTO projectUser = getUnAssignedUsers(projectUsersDTO);
         List<ProjectMember> projectMembers = new ArrayList<>();
 
         for (String userName : projectUser.getUserNames()) {
@@ -135,11 +145,51 @@ public class ProjectService {
         }
     }
 
+    public void optInReq(String userName, Long projectId) {
+
+        try {
+            if (!isProjectExist(projectId))
+                throw new NotFoundException("No such Project");
+            MemberStatus memberStatus = MemberStatus.builder()
+                    .projectId(projectId)
+                    .userName(userName)
+                    .optInRequest(OptInStatus.PENDING.getKey())
+                    .build();
+            memberStatusRepo.save(memberStatus);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+    }
+
+
     //Remove assigned users to the project
+    public void approveOptInReq(String userName, Long projectId) {
+        try {
+            Optional<MemberStatus> memberStatusOptional = memberStatusRepo.findByUserNameAndProjectId(userName, projectId);
+            if (!memberStatusOptional.isPresent())
+                throw new NotFoundException("No opt_in status for such data");
+
+            MemberStatus memberStatus = memberStatusOptional.get();
+            memberStatus.setOptInRequest(OptInStatus.ACCEPTED.getKey());
+            memberStatusRepo.save(memberStatus);
+
+            ProjectUsersDTO projectUser = ProjectUsersDTO.builder()
+                    .projectId(projectId)
+                    .userNames(List.of(userName))
+                    .build();
+            assignProject(projectUser);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+    }
+
     private ProjectUsersDTO getUnAssignedUsers(ProjectUsersDTO projectUsers) {
 
-       List<String> projectUserNames = projectUsers.getUserNames();
-       List<ProjectMember> projectMembers = new ArrayList<>();
+        List<String> projectUserNames = projectUsers.getUserNames();
+        List<ProjectMember> projectMembers = new ArrayList<>();
         for (String userName : projectUserNames) {
             Optional<ProjectMember> projectMember = projectMembersRepo.findByUserNameAndProjectId(userName, projectUsers.getProjectId());
             if (projectMember.isPresent())
@@ -166,5 +216,13 @@ public class ProjectService {
             throw new NotFoundException(e.getMessage());
         }
         return (List<ProjectMember>) projectMembers;
+    }
+
+    private boolean isProjectExist(Long projectId){
+        Optional<Project> optionalProject = projectRepo.findById(projectId);
+        if (optionalProject.isPresent())
+            return true;
+
+        return false;
     }
 }
