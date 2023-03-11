@@ -12,27 +12,26 @@ import com.project.exception.NotFoundException;
 import com.project.repo.MemberStatusRepo;
 import com.project.repo.ProjectMembersRepo;
 import com.project.repo.ProjectRepo;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ProjectService {
-    @Autowired
-    private ProjectRepo projectRepo;
-    @Autowired
-    private CategoryService categoryService;
-    @Autowired
-    private ProjectMembersRepo projectMembersRepo;
-    @Autowired
-    private MemberStatusRepo memberStatusRepo;
+    private final ProjectRepo projectRepo;
+    private final CategoryService categoryService;
+    private final ProjectMembersRepo projectMembersRepo;
+    private final MemberStatusRepo memberStatusRepo;
 
     public Project getProjectById(Long id) {
         Optional<Project> optionalProject = projectRepo.findById(id);

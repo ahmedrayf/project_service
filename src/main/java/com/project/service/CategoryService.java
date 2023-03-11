@@ -6,6 +6,7 @@ import com.project.entity.Project;
 import com.project.entity.ProjectCategory;
 import com.project.exception.NotFoundException;
 import com.project.repo.CategoryRepo;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,7 +20,9 @@ import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CategoryService {
+    private final  CategoryRepo categoryRepo;
 
     public Page<ProjectCategory> getAllCategories(String searchTag, PagingInfo pagingInfo){
         Page<ProjectCategory> projectCategories;
@@ -31,9 +34,6 @@ public class CategoryService {
             projectCategories = categoryRepo.findAll(pageable);
         return projectCategories;
     }
-
-    @Autowired
-    private CategoryRepo categoryRepo;
 
     public ProjectCategory getCategoryById(Long id){
 

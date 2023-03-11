@@ -28,8 +28,8 @@ public class ProjectDTO {
     private Long projectManagerId;
     private String description;
     @NotNull(message = "You have to set Project Status")
-    @Min(value = 2 , message =   "you can create project in status_kick off or in_progress only")
-    @Max(value = 3 ,  message = "you can create project in status_kick off or in_progress only")
+    @Min(value = 1)
+    @Max(value = 3)
     private int projectStatus;
 
 }

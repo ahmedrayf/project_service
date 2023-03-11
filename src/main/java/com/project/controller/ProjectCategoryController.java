@@ -7,6 +7,7 @@ import com.project.dto.response.PageableResponse;
 import com.project.entity.ProjectCategory;
 import com.project.service.CategoryService;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,9 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("projectCategory")
+@RequiredArgsConstructor
 public class ProjectCategoryController {
-
-    @Autowired
-    private CategoryService categoryService;
+    private final  CategoryService categoryService;
 
     @GetMapping("getAll")
     public ResponseEntity<PageableResponse> getAllProjectsCategories(@RequestParam(required = false) String searchTag,

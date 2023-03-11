@@ -11,7 +11,7 @@ import com.project.enums.OptInStatus;
 import com.project.service.ProjectService;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +20,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("project")
+@RequiredArgsConstructor
 public class ProjectController {
-
-    @Autowired
-    private ProjectService projectService;
+    private final  ProjectService projectService;
 
     @GetMapping("getAll")
     public ResponseEntity<PageableResponse> getAllProjects(@RequestParam(name = "searchTag", required = false) String searchTag,
