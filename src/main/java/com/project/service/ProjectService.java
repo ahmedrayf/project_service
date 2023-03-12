@@ -120,6 +120,9 @@ public class ProjectService {
             throw new NotFoundException("No such Project");
 
         ProjectUsersDTO projectUser = getUnAssignedUsers(projectUsersDTO);
+        if (projectUser.getUserNames().size() >= 0)
+            throw new RuntimeException("Users already assigned to this project");
+
         List<ProjectMember> projectMembers = new ArrayList<>();
 
         for (String userName : projectUser.getUserNames()) {
@@ -200,27 +203,12 @@ public class ProjectService {
             if (projectMember.isPresent())
                 projectMembers.add(projectMember.get());
         }
-//
-//
-//        Iterator<Long> projectUsersIds = projectUsers.getUserIds().listIterator();
-//        while(projectUsersIds.hasNext()) {
-//            Optional<ProjectMember> projectMember = projectMembersRepo.findByUserIdAndProjectId(projectUsersIds.next(), projectUsers.getProjectId());
-//            if (projectMember.isPresent())
-//                projectUsersIds.remove();
-//
-//        }
+
+      for (ProjectMember projectMember : projectMembers)
+          projectUserNames.removeIf(s -> s.contains(projectMember.getUserName()));
+
         projectUsers.setUserNames(projectUserNames);
         return projectUsers;
-    }
-
-    private List<ProjectMember> findProjectMembers(List<Long> projectMembersIds) {
-        Iterable projectMembers;
-        try {
-            projectMembers = projectMembersRepo.findAllById(projectMembersIds);
-        } catch (Exception e) {
-            throw new NotFoundException(e.getMessage());
-        }
-        return (List<ProjectMember>) projectMembers;
     }
 
     private boolean isProjectExist(Long projectId) {
