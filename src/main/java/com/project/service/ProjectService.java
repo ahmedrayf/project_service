@@ -54,6 +54,8 @@ public class ProjectService {
 
     public Project addProject(ProjectDTO projectDTO) {
 
+        if (projectDTO.getProjectStatus() == 3)
+            throw new RuntimeException("You can't create project as delivered");
         categoryService.getCategoryById(projectDTO.getProjectCategoryId());
 
         Project project = Project.builder()
@@ -78,23 +80,25 @@ public class ProjectService {
         if (!optionalProject.isPresent())
             throw new NotFoundException("No such project for id: " + id);
 
-
         categoryService.getCategoryById(projectDTO.getProjectCategoryId());
+        Project updatedProject = optionalProject.get();
 
-        Project updatedProject = Project.builder()
-                .id(id)
-                .name(projectDTO.getName())
-                .startDate(projectDTO.getStartDate())
-                .endDate(projectDTO.getEndDate())
-                .projectCategoryId(projectDTO.getProjectCategoryId())
-                .addedDate(LocalDateTime.now())
-                .projectManagerId(projectDTO.getProjectManagerId())
-                .description(projectDTO.getDescription())
-                .projectStatus(projectDTO.getProjectStatus())
-                .build();
-
+        if (projectDTO.getName() != null)
+            updatedProject.setName(projectDTO.getName());
+        if (projectDTO.getDescription() != null)
+            updatedProject.setDescription(projectDTO.getDescription());
+        if (projectDTO.getStartDate() != null)
+            updatedProject.setStartDate(projectDTO.getStartDate());
+        if (projectDTO.getEndDate() != null)
+            updatedProject.setEndDate(projectDTO.getEndDate());
+        if (projectDTO.getProjectManagerId() != null)
+            updatedProject.setProjectManagerId(projectDTO.getProjectManagerId());
+        if (projectDTO.getProjectCategoryId() != null)
+            updatedProject.setProjectCategoryId(projectDTO.getProjectCategoryId());
+        updatedProject.setProjectStatus(projectDTO.getProjectStatus());
 
         projectRepo.save(updatedProject);
+        log.info("Project Updated" + updatedProject);
         return updatedProject;
     }
 
@@ -107,6 +111,7 @@ public class ProjectService {
             throw new RuntimeException("You can delete project in case only deleted");
 
         projectRepo.deleteById(id);
+        log.info("project deleted" + optionalProject.get());
     }
 
     public void assignProject(ProjectUsersDTO projectUsersDTO) {
@@ -126,6 +131,7 @@ public class ProjectService {
             projectMembers.add(projectMember);
         }
         projectMembersRepo.saveAll(projectMembers);
+        log.info("Users assigned successfully to project");
     }
 
     public void unAssignProject(ProjectUsersDTO projectUser) {
@@ -217,7 +223,7 @@ public class ProjectService {
         return (List<ProjectMember>) projectMembers;
     }
 
-    private boolean isProjectExist(Long projectId){
+    private boolean isProjectExist(Long projectId) {
         Optional<Project> optionalProject = projectRepo.findById(projectId);
         if (optionalProject.isPresent())
             return true;

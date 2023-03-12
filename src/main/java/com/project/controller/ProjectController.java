@@ -139,7 +139,7 @@ public class ProjectController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity deleteProjectCategory(@PathVariable @Min(1) Long id) {
+    public ResponseEntity deleteProject(@PathVariable @Min(1) Long id) {
 
         try {
             projectService.deleteProject(id);

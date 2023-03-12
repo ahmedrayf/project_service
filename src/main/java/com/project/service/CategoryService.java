@@ -22,22 +22,22 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 public class CategoryService {
-    private final  CategoryRepo categoryRepo;
+    private final CategoryRepo categoryRepo;
 
-    public Page<ProjectCategory> getAllCategories(String searchTag, PagingInfo pagingInfo){
+    public Page<ProjectCategory> getAllCategories(String searchTag, PagingInfo pagingInfo) {
         Page<ProjectCategory> projectCategories;
         Pageable pageable = PageRequest.of(pagingInfo.getPageNum() - 1, pagingInfo.getCount());
 
-        if (searchTag != null&& !searchTag.isEmpty() )
-            projectCategories = categoryRepo.findByNameContaining(searchTag , pageable);
+        if (searchTag != null && !searchTag.isEmpty())
+            projectCategories = categoryRepo.findByNameContaining(searchTag, pageable);
         else
             projectCategories = categoryRepo.findAll(pageable);
         return projectCategories;
     }
 
-    public ProjectCategory getCategoryById(Long id){
+    public ProjectCategory getCategoryById(Long id) {
 
-        Optional<ProjectCategory> categoryOptional =  categoryRepo.findById(id);
+        Optional<ProjectCategory> categoryOptional = categoryRepo.findById(id);
         if (!categoryOptional.isPresent())
             throw new NotFoundException("No such category for id: " + id);
         return categoryOptional.get();
@@ -53,22 +53,21 @@ public class CategoryService {
 
         categoryRepo.save(projectCategory);
         log.info("Project category saved" + " id:" + projectCategory.getId());
-       return projectCategory;
+        return projectCategory;
     }
 
-    public ProjectCategory editCategory(Long id , ProjectCategoryDTO projectCategoryDTO) {
+    public ProjectCategory editCategory(Long id, ProjectCategoryDTO projectCategoryDTO) {
 
         Optional<ProjectCategory> optionalProjectCategory = categoryRepo.findById(id);
         if (!optionalProjectCategory.isPresent())
             throw new NotFoundException("No such category for id: " + id);
 
+        ProjectCategory updatedProjectCategory = optionalProjectCategory.get();
+        if (projectCategoryDTO.getName() != null)
+            updatedProjectCategory.setName(projectCategoryDTO.getName());
+        if (projectCategoryDTO.getDescription() != null)
+            updatedProjectCategory.setDescription(projectCategoryDTO.getDescription());
 
-        ProjectCategory updatedProjectCategory = optionalProjectCategory.get().builder()
-                .id(id)
-                .Name(projectCategoryDTO.getName())
-                .description(projectCategoryDTO.getDescription())
-                .addedDate(LocalDateTime.now())
-                .build();
         categoryRepo.save(updatedProjectCategory);
         log.info("Project category updated" + " id:" + id);
         return updatedProjectCategory;
